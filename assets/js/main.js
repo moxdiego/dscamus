@@ -251,3 +251,49 @@ if (typeof ScrollReveal !== 'undefined') {
   initNodes();
   draw();
 })();
+
+function actualizarFaviconScroll() {
+  const scrollTop = window.scrollY || document.documentElement.scrollTop;
+  const scrollTotal = document.documentElement.scrollHeight - window.innerHeight;
+  const progreso = Math.round((scrollTop / scrollTotal) * 100);
+
+  // Color que va cambiando del azul al verde según el progreso
+  const r = Math.round(56 + (34 - 56) * (progreso / 100));
+  const g = Math.round(189 + (197 - 189) * (progreso / 100));
+  const b = Math.round(248 + (94 - 248) * (progreso / 100));
+  const color = `rgb(${r},${g},${b})`;
+
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+      <!-- Fondo oscuro -->
+      <rect width="64" height="64" rx="10" fill="#0f172a"/>
+      
+      <!-- Barra de progreso de fondo -->
+      <rect x="8" y="44" width="48" height="6" rx="3" fill="#1e293b"/>
+      
+      <!-- Barra de progreso rellena -->
+      <rect x="8" y="44" width="${Math.max(4, 48 * progreso / 100)}" height="6" rx="3" fill="${color}"/>
+      
+      <!-- Porcentaje -->
+      <text x="32" y="36" font-family="monospace" font-size="20"
+            fill="${color}" text-anchor="middle" font-weight="bold">
+        ${progreso}%
+      </text>
+    </svg>
+  `;
+
+  const blob = new Blob([svg], { type: 'image/svg+xml' });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.getElementById('favicon-dinamico');
+  const anterior = link.href;
+  link.href = url;
+
+  if (anterior && anterior.startsWith('blob:')) {
+    URL.revokeObjectURL(anterior);
+  }
+}
+
+// Ejecutar al cargar y al scrollear
+window.addEventListener('scroll', actualizarFaviconScroll);
+window.addEventListener('load', actualizarFaviconScroll);
