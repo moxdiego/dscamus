@@ -51,10 +51,8 @@ const showMenu = (toggleId, navId) =>{
     const toggle = document.getElementById(toggleId),
     nav = document.getElementById(navId)
     
-    // Validate that variables exist
     if(toggle && nav){
         toggle.addEventListener('click', ()=>{
-            // We add the show-menu class to the div tag with the nav__menu class
             nav.classList.toggle('show-menu')
         })
     }
@@ -66,7 +64,6 @@ const navLink = document.querySelectorAll('.nav__link')
 
 function linkAction(){
     const navMenu = document.getElementById('nav-menu')
-    // When we click on each nav__link, we remove the show-menu class
     navMenu.classList.remove('show-menu')
 }
 navLink.forEach(n => n.addEventListener('click', linkAction))
@@ -94,7 +91,6 @@ window.addEventListener('scroll', scrollActive)
 /*==================== CHANGE BACKGROUND HEADER ====================*/ 
 function scrollHeader(){
     const nav = document.getElementById('header')
-    // When the scroll is greater than 200 viewport height, add the scroll-header class to the header tag
     if(this.scrollY >= 200) nav.classList.add('scroll-header'); else nav.classList.remove('scroll-header')
 }
 window.addEventListener('scroll', scrollHeader)
@@ -102,7 +98,6 @@ window.addEventListener('scroll', scrollHeader)
 /*==================== SHOW SCROLL TOP ====================*/ 
 function scrollTop(){
     const scrollTop = document.getElementById('scroll-top');
-    // When the scroll is higher than 560 viewport height, add the show-scroll class to the a tag with the scroll-top class
     if(this.scrollY >= 560) scrollTop.classList.add('show-scroll'); else scrollTop.classList.remove('show-scroll')
 }
 window.addEventListener('scroll', scrollTop)
@@ -112,34 +107,27 @@ const themeButton = document.getElementById('theme-button')
 const darkTheme = 'dark-theme'
 const iconTheme = 'bx-sun'
 
-// Previously selected topic (if user selected)
 const selectedTheme = localStorage.getItem('selected-theme')
 const selectedIcon = localStorage.getItem('selected-icon')
 
-// We obtain the current theme that the interface has by validating the dark-theme class
 const getCurrentTheme = () => document.body.classList.contains(darkTheme) ? 'dark' : 'light'
 const getCurrentIcon = () => themeButton.classList.contains(iconTheme) ? 'bx-moon' : 'bx-sun'
 
-// We validate if the user previously chose a topic
-// Si el usuario ya eligió un tema antes, respetarlo
-// Si nunca visitó, arrancar en oscuro por defecto
-
-const canvas = document.getElementById('pcb-canvas'); // ← AGREGAR
+const canvas = document.getElementById('pcb-canvas');
 
 if (selectedTheme) {
   document.body.classList[selectedTheme === 'dark' ? 'add' : 'remove'](darkTheme)
   themeButton.classList[selectedIcon === 'bx-moon' ? 'add' : 'remove'](iconTheme)
-  canvas.style.opacity = selectedTheme === 'dark' ? '0.4' : '0'; // ← AGREGAR
+  canvas.style.opacity = selectedTheme === 'dark' ? '0.4' : '0';
 } else {
   document.body.classList.add(darkTheme)
   themeButton.classList.add(iconTheme)
-  canvas.style.opacity = '0.4'; // ← AGREGAR
+  canvas.style.opacity = '0.4';
 }
 
 themeButton.addEventListener('click', () => {
     document.body.classList.toggle(darkTheme)
     themeButton.classList.toggle(iconTheme)
-    // ← AGREGAR las dos líneas siguientes
     const isDark = document.body.classList.contains(darkTheme)
     canvas.style.opacity = isDark ? '0.4' : '0';
     localStorage.setItem('selected-theme', getCurrentTheme())
@@ -165,6 +153,7 @@ if (typeof ScrollReveal !== 'undefined') {
     });
 }
 
+/*==================== PCB CANVAS ====================*/
 (function() {
   const canvas = document.getElementById('pcb-canvas');
   const ctx = canvas.getContext('2d');
@@ -194,7 +183,6 @@ if (typeof ScrollReveal !== 'undefined') {
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    /* líneas entre nodos cercanos */
     for (let i = 0; i < nodes.length; i++) {
       for (let j = i + 1; j < nodes.length; j++) {
         const dx = nodes[i].x - nodes[j].x;
@@ -205,7 +193,6 @@ if (typeof ScrollReveal !== 'undefined') {
           ctx.strokeStyle = COLOR;
           ctx.lineWidth = 0.6;
           ctx.globalAlpha = 1 - dist / 160;
-          /* líneas ortogonales estilo PCB */
           const mx = (nodes[i].x + nodes[j].x) / 2;
           ctx.moveTo(nodes[i].x, nodes[i].y);
           ctx.lineTo(mx, nodes[i].y);
@@ -216,14 +203,12 @@ if (typeof ScrollReveal !== 'undefined') {
       }
     }
 
-    /* nodos */
     ctx.globalAlpha = 1;
     nodes.forEach(n => {
       ctx.beginPath();
       ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
       ctx.fillStyle = COLOR;
       ctx.fill();
-      /* anillo exterior en nodos grandes */
       if (n.r > 2) {
         ctx.beginPath();
         ctx.arc(n.x, n.y, n.r + 3, 0, Math.PI * 2);
@@ -235,7 +220,6 @@ if (typeof ScrollReveal !== 'undefined') {
       }
     });
 
-    /* mover nodos */
     nodes.forEach(n => {
       n.x += n.vx;
       n.y += n.vy;
@@ -252,48 +236,30 @@ if (typeof ScrollReveal !== 'undefined') {
   draw();
 })();
 
+/*==================== FAVICON DINAMICO CON SCROLL ====================*/
 function actualizarFaviconScroll() {
   const scrollTop = window.scrollY || document.documentElement.scrollTop;
   const scrollTotal = document.documentElement.scrollHeight - window.innerHeight;
   const progreso = Math.round((scrollTop / scrollTotal) * 100);
 
-  // Color que va cambiando del azul al verde según el progreso
   const r = Math.round(56 + (34 - 56) * (progreso / 100));
   const g = Math.round(189 + (197 - 189) * (progreso / 100));
   const b = Math.round(248 + (94 - 248) * (progreso / 100));
   const color = `rgb(${r},${g},${b})`;
 
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-      <!-- Fondo oscuro -->
-      <rect width="64" height="64" rx="10" fill="#0f172a"/>
-      
-      <!-- Barra de progreso de fondo -->
-      <rect x="8" y="44" width="48" height="6" rx="3" fill="#1e293b"/>
-      
-      <!-- Barra de progreso rellena -->
-      <rect x="8" y="44" width="${Math.max(4, 48 * progreso / 100)}" height="6" rx="3" fill="${color}"/>
-      
-      <!-- Porcentaje -->
-      <text x="32" y="36" font-family="monospace" font-size="20"
-            fill="${color}" text-anchor="middle" font-weight="bold">
-        ${progreso}%
-      </text>
-    </svg>
-  `;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+    <rect width="64" height="64" rx="10" fill="#0f172a"/>
+    <rect x="8" y="44" width="48" height="6" rx="3" fill="#1e293b"/>
+    <rect x="8" y="44" width="${Math.max(4, 48 * progreso / 100)}" height="6" rx="3" fill="${color}"/>
+    <text x="32" y="36" font-family="monospace" font-size="20"
+          fill="${color}" text-anchor="middle" font-weight="bold">${progreso}%</text>
+  </svg>`;
 
-  const blob = new Blob([svg], { type: 'image/svg+xml' });
-  const url = URL.createObjectURL(blob);
-
+  // Base64 — funciona tanto local como en producción
+  const encoded = 'data:image/svg+xml;base64,' + btoa(svg);
   const link = document.getElementById('favicon-dinamico');
-  const anterior = link.href;
-  link.href = url;
-
-  if (anterior && anterior.startsWith('blob:')) {
-    URL.revokeObjectURL(anterior);
-  }
+  link.href = encoded;
 }
 
-// Ejecutar al cargar y al scrollear
 window.addEventListener('scroll', actualizarFaviconScroll);
 window.addEventListener('load', actualizarFaviconScroll);
